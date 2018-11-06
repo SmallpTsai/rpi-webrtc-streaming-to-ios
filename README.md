@@ -56,6 +56,8 @@ You should see 'WebRTC DEMO' heading and 2 buttons: 'Start Streaming' and 'Stop 
 
 Click 'Start Streaming', the Red LED on Camera module should turn on and the image from camera should appear on your browser !!
 
+![chrome](images/chrome.jpg)
+
 > Default setting is 640x480 30fps.
 > It will eat up around 50% CPU and 5~60% RAM on RPi Zero W.
 > But It will only eat around 20% CPU and 25% RAM on RPi 3 B+.
@@ -175,6 +177,8 @@ During state change, App will use `webView.evaluateJavaScript` to invoke these 2
         }
     }
 ```
+
+![chrome](images/ios.jpg)
 
 ## Reference
 

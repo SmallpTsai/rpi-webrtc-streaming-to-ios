@@ -54,6 +54,8 @@ server-option = --www-webrtc-signaling-path=/webrtc
 
 按下 'Start Streaming', 這時攝影機模組上的紅燈會亮起, 同時在瀏覽器上會看到從攝影機來的影像 !!
 
+![chrome](images/chrome.jpg)
+
 > 預設解析度為 640x480 30fps.
 > 在 RPI Zero W 上大約會用掉 50% CPU 和 5~60% RAM
 > 而在 RPI 3 B+ 上大約只會用掉 20% CPU 和 25% RAM
@@ -172,6 +174,8 @@ WebRTC 是瀏覽器標準所以多數瀏覽器都支援. 在 iOS 上也可以利
         }
     }
 ```
+
+![chrome](images/ios.jpg)
 
 ## Reference
 
