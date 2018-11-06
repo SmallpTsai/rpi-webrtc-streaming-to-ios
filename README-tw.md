@@ -1,37 +1,35 @@
 # rpi-webrtc-streaming-to-ios
-Streaming h264 from Camera of RPI to iOS devices via WebRTC
+從樹莓派 RPi 攝影機, 串流 h264 影像到 iOS 裝置 (經 WebRTC)
 
-[中文版README連結](README-tw.md)
+## RPi 端
 
-## RPi side
+以下的步驟在 'RPi Camera module v1.3' 和 'RPi 3 model B+' 和 'RPi Zero W', OS 使用 *Raspbian Stretch*
 
-Below steps verified on 'RPi Camera module v1.3' with 'RPi 3 model B+' and 'RPi Zero W', running *Raspbian Stretch*
+### 接上攝影機
 
-### Attach Camera
+把攝影機模組接上後開機
 
-Have your camera module attached to RPi and boot up.
+### uv4l 安裝
 
-### uv4l installation
+uv4l 的安裝細節可以參考官方說明 https://www.linux-projects.org/uv4l/installation/
 
-Refer to https://www.linux-projects.org/uv4l/installation/ for more detail
-
-A summary of command history:
+以下簡介重要的指令：
 
 1. `curl http://www.linux-projects.org/listing/uv4l_repo/lpkey.asc | sudo apt-key add -`
 2. `sudo nano /etc/apt/sources.list`
-    * add `deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main` to the end.
-3. for ARM7 (RPi3): `sudo apt-get install uv4l uv4l-raspicam uv4l-raspicam-extras uv4l-webrtc`
-    * for ARM6 (RPi Zero W): `sudo apt-get install uv4l uv4l-raspicam uv4l-raspicam-extras uv4l-webrtc-armv6`
+    * 在最後加上 `deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main`
+3. arm7 系列 (ex. RPi3) 請下 `sudo apt-get install uv4l uv4l-raspicam uv4l-raspicam-extras uv4l-webrtc`
+    * arm6 (ex. RPi Zero W) 請下 `sudo apt-get install uv4l uv4l-raspicam uv4l-raspicam-extras uv4l-webrtc-armv6`
 
-### Put HTML
+### 複製 HTML 網頁
 
-Copy `public` folder to your RPi
+把 `public` 目錄複製到 RPi 上
 
 Ex. `scp -r public pi@yourrpi.local:~/`
 
-### Setup uv4l-server configuration
+### uv4l-server 設定
 
-1. `sudo nano /etc/uv4l/uv4l-raspicam.conf` and make sure below modification
+1. `sudo nano /etc/uv4l/uv4l-raspicam.conf` 並作以下改動
 
 ```shell
 ### These options are specific to the HTTP/HTTPS Server
@@ -44,23 +42,23 @@ server-option = --www-port=8888
 server-option = --www-webrtc-signaling-path=/webrtc
 ```
 
-> www-root-path=[where you copied public folder]
+> www-root-path=[public 目錄的位置]
 
-2. `sudo service uv4l_raspicam restart`
+2. `sudo service uv4l_raspicam restart` 重新啟動服務
 
-### Verification
+### 驗證
 
-Open a browser (Chrome prefered) on any device (PC, iOS or Android) that in the same network of RPi and open this link: `http://yourrpi.local:8888/index.html`
+找一台和 RPi 在同一個網路的裝置 (電腦, iOS 或 Android 裝置), 打開瀏覽器 (建議用 Chrome) 並輸入連結`http://yourrpi.local:8888/index.html` 
 
-You should see 'WebRTC DEMO' heading and 2 buttons: 'Start Streaming' and 'Stop Streaming'
+應該會看到標題 'WebRTC DEMO' 和二個按鈕 ('Start Streaming' 和 'Stop Streaming')
 
-Click 'Start Streaming', the Red LED on Camera module should turn on and the image from camera should appear on your browser !!
+按下 'Start Streaming', 這時攝影機模組上的紅燈會亮起, 同時在瀏覽器上會看到從攝影機來的影像 !!
 
-> Default setting is 640x480 30fps.
-> It will eat up around 50% CPU and 5~60% RAM on RPi Zero W.
-> But It will only eat around 20% CPU and 25% RAM on RPi 3 B+.
+> 預設解析度為 640x480 30fps.
+> 在 RPI Zero W 上大約會用掉 50% CPU 和 5~60% RAM
+> 而在 RPI 3 B+ 上大約只會用掉 20% CPU 和 25% RAM
 
-> You can adjust the video settings at `public/signalling.js`. search for `vformat: 30` and set to 60 or even higher
+> 在 `public/signalling.js` 裡可以調整解析度. 可試著搜尋 `vformat: 30` 並把它改到 60 或更大數字
 
 ```JavaScript
             var request = {
@@ -94,23 +92,22 @@ Click 'Start Streaming', the Red LED on Camera module should turn on and the ima
 ```
 
 
+## iOS 端
 
-## iOS side
+WebRTC 是瀏覽器標準所以多數瀏覽器都支援. 在 iOS 上也可以利用 `WKWebView` 輕易的使用它
 
-WebRTC is a Web browser standard, so most browser already support it.
-So it is also very easy to put it into iOS Application thanks to `WKWebView`
-
-There are only few things need to be mentions:
+只有一些要注意的點:
 
 #### SSL
 
-First, Our RPI Web server is NOT SSL-enabled, so it is either:
-1. Turn on SSL of RPI Web server or
-2. Allow WebView to load insecure content
+由於剛才設定的 RPI Web server 並沒有打開 SSL 功能，所以會被 iOS 拒絕使用, 二個選項:
 
-We will choose 2 for now. 
+1. 打開 SSL 
+2. 允許 WebView 連接不安全的網站
 
-To do so, add following content to your `info.plist` (Open as Source code)
+這裡使用選項 2
+
+在 `info.plist` (Open as Source code) 裡加入以下 XML 內容
 
 ```XML
     <key>NSAppTransportSecurity</key>
@@ -122,13 +119,13 @@ To do so, add following content to your `info.plist` (Open as Source code)
     </dict>
 ```
 
-> Also add `NSAllowsArbitraryLoadsForMedia` so WebView can display video
+> ps. 順便加了 `NSAllowsArbitraryLoadsForMedia` 讓 WebView 能播放影像
 
-#### Stop Streaming at Background
+#### 進到背景前停止串流
 
-HTML page running inside browser will not know device state change (ex. App goes to background and resume). It is App who know what happen.
+由於跑在瀏覽器裡的網頁無法得知手機的狀態變化 (例如進到背景), 只有 App 本身才能知道
 
-So the HTML page enable 2 Javascript functions: `viewPause` and `viewResume`. (defined at `public/main.js`)
+所以讓網頁提供 `viewPause` 和 `viewResume` 這二個 Javascript API (定義 `public/main.js` 裡)
 
 ```JavaScript
     window.addEventListener('DOMContentLoaded', function () {
@@ -141,7 +138,7 @@ So the HTML page enable 2 Javascript functions: `viewPause` and `viewResume`. (d
     });
 ```
 
-During state change, App will use `webView.evaluateJavaScript` to invoke these 2 functions to suspend / resume streaming. (check `ViewCntroller.swift`)
+再讓 App 在狀態變化發生時透過 `webView.evaluateJavaScript` 主動通知呼叫網頁的二個 API
 
 ```swift
     override func viewWillDisappear(_ animated: Bool) {
